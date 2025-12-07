@@ -11,7 +11,6 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-import cors from "cors";
 
 const allowedOrigins = ["https://gaetan-feed.vercel.app"];
 app.use(
