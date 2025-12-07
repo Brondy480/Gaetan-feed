@@ -11,8 +11,17 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5174').split(',');
-app.use(cors({ origin: allowedOrigins }));
+import cors from "cors";
+
+const allowedOrigins = ["https://gaetan-feed.vercel.app"];
+app.use(
+  cors({
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    credentials: true,
+  })
+);
+
 
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/cfo-feeds')
   .then(() => console.log('✅ MongoDB Connected'))

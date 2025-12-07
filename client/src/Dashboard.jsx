@@ -13,7 +13,7 @@ import {
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://gaetan-feed.onrender.com/api";
 const LIMIT = 10;
 const PLACEHOLDER_IMAGE = "https://via.placeholder.com/800x450.png?text=No+Image";
 
