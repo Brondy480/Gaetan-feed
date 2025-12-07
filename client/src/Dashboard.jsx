@@ -41,8 +41,10 @@ export default function Dashboard() {
 
   const safe = (v, fallback = "") => (v === undefined || v === null ? fallback : v);
 
+  // Fetch articles
   const fetchArticles = useCallback(
     async (pageNumber = 1) => {
+      if (loading) return;
       setLoading(true);
       try {
         const params = { page: pageNumber, limit: LIMIT };
@@ -53,7 +55,11 @@ export default function Dashboard() {
         const data = Array.isArray(res.data) ? res.data : [];
 
         setArticles((prev) => {
+          // Page 1 → replace articles
           if (pageNumber === 1) return data;
+
+          // Append for infinite scroll, prevent overwriting
+          if (data.length === 0) return prev;
           const existingIds = new Set(prev.map((a) => a._id));
           return [...prev, ...data.filter((a) => !existingIds.has(a._id))];
         });
@@ -65,9 +71,10 @@ export default function Dashboard() {
         setLoading(false);
       }
     },
-    [selectedCategory, viewSavedOnly]
+    [selectedCategory, viewSavedOnly, loading]
   );
 
+  // Reset when category or saved filter changes
   useEffect(() => {
     setPage(1);
     setArticles([]);
@@ -75,10 +82,13 @@ export default function Dashboard() {
     fetchArticles(1);
   }, [selectedCategory, viewSavedOnly]);
 
+  // Load next page for infinite scroll
   useEffect(() => {
-    if (page > 1) fetchArticles(page);
+    if (page === 1) return;
+    fetchArticles(page);
   }, [page]);
 
+  // Infinite scroll observer
   useEffect(() => {
     if (loading || !hasMore) return;
     const node = lastCardRef.current;
@@ -90,25 +100,32 @@ export default function Dashboard() {
       },
       { threshold: 0.5 }
     );
+
     io.observe(node);
     observer.current = io;
     return () => io.disconnect();
-  }, [loading, hasMore]);
+  }, [loading, hasMore, articles]);
 
+  // Toggle saved
   const toggleSave = async (id) => {
     try {
       const res = await axios.patch(`${API_BASE}/articles/${id}/save`);
       const updated = res.data;
       setArticles((prev) => prev.map((a) => (a._id === id ? updated : a)));
-    } catch {}
+    } catch (err) {
+      console.error(err);
+    }
   };
 
+  // Mark as read
   const markAsRead = async (id) => {
     try {
       const res = await axios.patch(`${API_BASE}/articles/${id}/read`);
       const updated = res.data;
       setArticles((prev) => prev.map((a) => (a._id === id ? updated : a)));
-    } catch {}
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (

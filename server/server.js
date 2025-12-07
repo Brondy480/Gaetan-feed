@@ -11,7 +11,7 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173').split(',');
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5174').split(',');
 app.use(cors({ origin: allowedOrigins }));
 
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/cfo-feeds')
